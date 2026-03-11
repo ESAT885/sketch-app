@@ -67,9 +67,8 @@ function addDiagram() {
           📦 Diagram Ekle
         </button>
 
-        <button class=" p-2 rounded b-3"
-        @click="objectsStore.toggleConnectionMode()"
-        :class="objectsStore.connectionMode ? 'bg-green-500' : 'bg-blue-500'">
+        <button class=" p-2 rounded b-3" @click="objectsStore.toggleConnectionMode()"
+          :class="objectsStore.connectionMode ? 'bg-green-500' : 'bg-blue-500'">
           Bağlantı
         </button>
 

@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import { useObjectsStore } from "@/stores/object.store";
 import { ref, computed } from "vue";
-
-const x = ref(0);
-const y = ref(0);
+const objectsStore = useObjectsStore();
+// --- Pan & Zoom ---
+const x = ref(window.innerWidth / 2 - 50000); // canvas ortalanmış başlangıç
+const y = ref(window.innerHeight / 2 - 50000);
 const scale = ref(1);
 
 let dragging = false;
 let startX = 0;
 let startY = 0;
-
-const canvasRef = ref<HTMLDivElement | null>(null); // canvas wrapper
 
 function mouseDown(e: MouseEvent) {
   dragging = true;
@@ -20,11 +20,8 @@ function mouseDown(e: MouseEvent) {
 function mouseMove(e: MouseEvent) {
   if (!dragging) return;
 
-  const dx = e.clientX - startX;
-  const dy = e.clientY - startY;
-
-  x.value += dx;
-  y.value += dy;
+  x.value += e.clientX - startX;
+  y.value += e.clientY - startY;
 
   startX = e.clientX;
   startY = e.clientY;
@@ -40,76 +37,87 @@ function wheel(e: WheelEvent) {
   const zoomIntensity = 0.1;
   const delta = e.deltaY > 0 ? -zoomIntensity : zoomIntensity;
 
-  const newScale = scale.value + delta;
-  if (newScale < 0.2 || newScale > 4) return;
+  // zoom limitleri
+  const newScale = Math.min(4, Math.max(0.2, scale.value + delta));
 
-  const rect = canvasRef.value!.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
+  const mouseX = e.clientX;
+  const mouseY = e.clientY;
 
-  // Mouse'un world koordinatları
   const wx = (mouseX - x.value) / scale.value;
   const wy = (mouseY - y.value) / scale.value;
 
   scale.value = newScale;
 
-  // Pan'ı güncelle, fare sabit kalacak
   x.value = mouseX - wx * scale.value;
   y.value = mouseY - wy * scale.value;
 }
 
 const canvasStyle = computed(() => ({
   transform: `translate(${x.value}px, ${y.value}px) scale(${scale.value})`,
-  transformOrigin: "0 0"
+  transformOrigin: "0 0",
 }));
+
 const gridStyle = computed(() => ({
   backgroundSize: `${40 * scale.value}px ${40 * scale.value}px`,
-  backgroundPosition: `${x.value * scale.value}px ${y.value * scale.value}px`
-}))
+  backgroundPosition: `${x.value}px ${y.value}px`,
+}));
+
+function canvasClick(e: MouseEvent) {
+  console.log("Canvas clicked at:", e.clientX, e.clientY);
+  // Eğer canvas sürükleniyorsa ekleme yapma
+  if (dragging) return;
+
+  const cx = (e.clientX - x.value) / scale.value;
+  const cy = (e.clientY - y.value) / scale.value;
+
+  objectsStore.addObject({
+    type: "note",
+    x: cx,
+    y: cy,
+    size: 150,
+    title: "",
+  });
+  console.log("Canvas clicked at:", objectsStore.objects);
+}
+
 </script>
 
 <template>
-  <div
-    class="viewport"
-    @mousedown="mouseDown"
-    @mousemove="mouseMove"
-    @mouseup="mouseUp"
-    @mouseleave="mouseUp"
-    @wheel.prevent="wheel"
-  >
+  <div class="viewport" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseUp" @mouseleave="mouseUp"
+    @wheel.prevent="wheel" @click="canvasClick">
     <div class="grid" :style="gridStyle"></div>
-
-    <div ref="canvasRef" class="canvas" :style="canvasStyle">
-      <slot/>
+    <div class="canvas" :style="canvasStyle">
+      <slot />
     </div>
   </div>
-
 </template>
 
 <style>
-.viewport{
-  width:100vw;
-  height:100vh;
-  overflow:hidden;
-  position:relative;
-  background:#111;
+.viewport {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background: #111;
   cursor: grab;
 }
-.viewport:active { cursor: grabbing; }
 
-.grid{
-  position:absolute;
-   inset:0;
-  pointer-events:none;
-  background-image:
-    linear-gradient(#222 1px, transparent 1px),
-    linear-gradient(90deg,#222 1px, transparent 1px);
-  background-size:40px 40px;
+.viewport:active {
+  cursor: grabbing;
 }
 
-.canvas{
-  position:absolute;
-  width:100000px;
-  height:100000px;
+.grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(#222 1px, transparent 1px),
+    linear-gradient(90deg, #222 1px, transparent 1px);
+}
+
+.canvas {
+  position: absolute;
+  width: 100000px;
+  height: 100000px;
 }
 </style>

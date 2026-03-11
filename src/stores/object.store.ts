@@ -19,7 +19,7 @@ export interface Connection {
 export const useObjectsStore = defineStore("objects", {
   state: () => ({
     objects: [
-      { id: crypto.randomUUID().toString(), type: "note", x: 100, y: 100, size: 150, color: "", title: 'Alışveriş Listesi', text: 'Alışveriş listesi' },
+      { id: crypto.randomUUID().toString(), type: "note", x:  49992 , y: 50000, size: 150, color: "", title: 'Alışveriş Listesi', text: 'Alışveriş listesi' },
       { id: crypto.randomUUID().toString(), type: "doc", x: 300, y: 100, size: 150, color: "gray", title: 'Not 2', text: 'Not 2' },
       { id: crypto.randomUUID().toString(), type: "note", x: 500, y: 100, size: 150, color: "", title: 'Not 3', text: 'Not 3' }
     ] as CanvasObject[],
