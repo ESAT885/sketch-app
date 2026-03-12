@@ -19,18 +19,55 @@ export interface Connection {
 export const useObjectsStore = defineStore("objects", {
   state: () => ({
     objects: [
-      { id: crypto.randomUUID().toString(), type: "note", x:  49992 , y: 50000, size: 150, color: "", title: 'Alışveriş Listesi', text: 'Alışveriş listesi' },
-      { id: crypto.randomUUID().toString(), type: "doc", x: 300, y: 100, size: 150, color: "gray", title: 'Not 2', text: 'Not 2' },
-      { id: crypto.randomUUID().toString(), type: "note", x: 500, y: 100, size: 150, color: "", title: 'Not 3', text: 'Not 3' }
+      { id: crypto.randomUUID().toString(), type: "note", x: 49992, y: 50000, size: 150, color: "", title: 'Alışveriş Listesi', text: 'Alışveriş listesi' },
+
     ] as CanvasObject[],
     connections: [] as Connection[],
     connectionMode: false,
-     selectedNodes: [] as string[],
-     selectedConnection: null as Connection | null
+    noteMode: false,
+    docMode: false,
+    selectedNodes: [] as string[],
+    selectedConnection: null as Connection | null,
+
+    canvasX: window.innerWidth / 2 - 50000,
+    canvasY: window.innerHeight / 2 - 50000,
+    canvasScale: 1,
   }),
+
   actions: {
+    loadFromStorage() {
+      const saved = localStorage.getItem("canvas_data");
+
+      if (!saved) return;
+
+      const data = JSON.parse(saved);
+      this.objects = data.objects || [];
+      this.connections = data.connections || [];
+
+      if (data.canvas) {
+
+        this.canvasX = data.canvas.x ?? this.canvasX;
+        this.canvasY = data.canvas.y ?? this.canvasY;
+        this.canvasScale = data.canvas.scale ?? this.canvasScale;
+       
+      }
+    },
+    saveToStorage() {
+      const data = {
+        objects: this.objects,
+        connections: this.connections,
+        canvas: {
+          x: this.canvasX,
+          y: this.canvasY,
+          scale: this.canvasScale,
+        },
+      };
+      localStorage.setItem("canvas_data", JSON.stringify(data));
+
+    },
     addObject(obj: Omit<CanvasObject, "id">) {
       this.objects.push({ ...obj, id: crypto.randomUUID().toString() });
+      this.allmodeFalse()
     },
 
     removeObject(id: string) {
@@ -42,28 +79,44 @@ export const useObjectsStore = defineStore("objects", {
         to: b
       })
     },
-     selectNode(id:string){
+    selectNode(id: string) {
 
-      if(!this.connectionMode) return
+      if (!this.connectionMode) return
 
       this.selectedNodes.push(id)
 
-      if(this.selectedNodes.length === 2){
+      if (this.selectedNodes.length === 2) {
 
         this.connections.push({
-          from: this.selectedNodes[0]??"",
-          to: this.selectedNodes[1]??""
+          from: this.selectedNodes[0] ?? "",
+          to: this.selectedNodes[1] ?? ""
         })
 
         this.selectedNodes = []
-        this.connectionMode = false
+        this.allmodeFalse()
+
       }
 
     },
-     toggleConnectionMode(){
+    toggleConnectionMode() {
       this.connectionMode = !this.connectionMode
       this.selectedNodes = []
     },
 
+    toogleNoteMode() {
+      this.allmodeFalse()
+      this.noteMode = !this.noteMode
+
+    },
+    toogleDocMode() {
+      this.allmodeFalse()
+      this.docMode = !this.docMode
+
+    },
+    allmodeFalse() {
+      this.connectionMode = false
+      this.noteMode = false
+      this.docMode = false
+    }
   },
 });

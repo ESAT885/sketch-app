@@ -1,11 +1,22 @@
 <script setup lang="ts">
 import { useObjectsStore } from "@/stores/object.store";
-import { ref, computed } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 const objectsStore = useObjectsStore();
 // --- Pan & Zoom ---
-const x = ref(window.innerWidth / 2 - 50000); // canvas ortalanmış başlangıç
-const y = ref(window.innerHeight / 2 - 50000);
-const scale = ref(1);
+// const x = ref(window.innerWidth / 2 - 50000); // canvas ortalanmış başlangıç
+// const y = ref(window.innerHeight / 2 - 50000);
+// const scale = ref(1);
+const x = ref(objectsStore.canvasX);
+const y = ref(objectsStore.canvasY);
+const scale = ref(objectsStore.canvasScale);
+onMounted(() => {
+  // Sayfa yüklendiğinde localStorage'dan objeleri ve bağlantıları yükle
+
+ objectsStore.loadFromStorage()
+  x.value = objectsStore.canvasX
+  y.value = objectsStore.canvasY
+  scale.value = objectsStore.canvasScale
+});
 
 let dragging = false;
 let startX = 0;
@@ -25,6 +36,11 @@ function mouseMove(e: MouseEvent) {
 
   startX = e.clientX;
   startY = e.clientY;
+
+    objectsStore.canvasX = x.value;
+  objectsStore.canvasY = y.value;
+  objectsStore.canvasScale=scale.value
+  objectsStore.saveToStorage()
 }
 
 function mouseUp() {
@@ -50,6 +66,13 @@ function wheel(e: WheelEvent) {
 
   x.value = mouseX - wx * scale.value;
   y.value = mouseY - wy * scale.value;
+
+
+
+        objectsStore.canvasX = x.value;
+  objectsStore.canvasY = y.value;
+  objectsStore.canvasScale=scale.value
+  objectsStore.saveToStorage()
 }
 
 const canvasStyle = computed(() => ({
@@ -63,6 +86,7 @@ const gridStyle = computed(() => ({
 }));
 
 function canvasClick(e: MouseEvent) {
+
   console.log("Canvas clicked at:", e.clientX, e.clientY);
   // Eğer canvas sürükleniyorsa ekleme yapma
   if (dragging) return;
@@ -70,15 +94,20 @@ function canvasClick(e: MouseEvent) {
   const cx = (e.clientX - x.value) / scale.value;
   const cy = (e.clientY - y.value) / scale.value;
 
-  objectsStore.addObject({
-    type: "note",
-    x: cx,
-    y: cy,
-    size: 150,
-    title: "",
-  });
-  console.log("Canvas clicked at:", objectsStore.objects);
+
+  if (objectsStore.noteMode||objectsStore.docMode) {
+
+
+    objectsStore.addObject({
+
+      type:objectsStore.noteMode ? "note" : "doc",
+      x: cx,
+      y: cy,
+     size: 150, color: "", title: 'Alışveriş Listesi', text: 'Alışveriş listesi'
+    });
+  }
 }
+
 
 </script>
 
