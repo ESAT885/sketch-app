@@ -8,22 +8,16 @@ defineProps<{
 const objectsStore = useObjectsStore();
 const dragging = ref<{
   id: string,
-  startX: number,
-  startY: number,
-  startObjX: number,
-  startObjY: number
+  offsetX: number,
+  offsetY: number
 } | null>(null);
 const resizing = ref<{ id: string, startX: number, startY: number, startSize: number } | null>(null);
 
 function startDrag(e: MouseEvent, objId: string, objX: number, objY: number) {
   e.stopPropagation(); // diğer eventleri engelle
-  dragging.value = {
-    id: objId,
-    startX: e.clientX,
-    startY: e.clientY,
-    startObjX: objX,
-    startObjY: objY
-  };
+    const offsetX = (e.clientX - objX * objectsStore.canvasScale) / objectsStore.canvasScale;
+  const offsetY = (e.clientY - objY * objectsStore.canvasScale) / objectsStore.canvasScale;
+ dragging.value = { id: objId, offsetX, offsetY };
 
   // Mouse hareketini ve bırakmayı global takip et
   window.addEventListener("mousemove", onDrag);
@@ -31,13 +25,12 @@ function startDrag(e: MouseEvent, objId: string, objX: number, objY: number) {
 }
 function onDrag(e: MouseEvent) {
   if (!dragging.value) return;
-  const dx = e.clientX - dragging.value.startX;
-  const dy = e.clientY - dragging.value.startY;
+  
 
-  const obj = objectsStore.groups.find(o => o.id === dragging.value!.id);
-  if (obj) {
-    obj.x = dragging.value.startObjX + dx;
-    obj.y = dragging.value.startObjY + dy;
+const group = objectsStore.groups.find(o => o.id === dragging.value!.id);
+  if (group) {
+    group.x = (e.clientX / objectsStore.canvasScale) - dragging.value.offsetX;
+    group.y = (e.clientY / objectsStore.canvasScale) - dragging.value.offsetY;
   }
 }
 
@@ -91,7 +84,7 @@ function stopResize() {
       left: '50%',
       transform: 'translateX(-50%)',
 
-   
+
       fontWeight: 'bold',
 
       borderRadius: '4px',
@@ -101,7 +94,7 @@ function stopResize() {
         class="bg-yellow-400 flex justify-between items-center p-1 rounded-t font-bold cursor-grab select-none text-black">
         <span> {{ group.title }}</span>
         <button @mousedown.stop @click="objectsStore.removeGroup(group.id??'')"
-          class="px-2 hover:bg-red-200 rounded">✕</button>
+          class=" ml-2 px-2 hover:bg-red-200 rounded">✕</button>
       </div>
     </div>
     <div @mousedown="(e) => startResize(e, group.id ?? '', group.size)"

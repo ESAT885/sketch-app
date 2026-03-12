@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import { useObjectsStore } from "@/stores/object.store";
 import { ref, computed, onMounted } from "vue";
+import ContextMenu from "@/components/canvas/CanvasLeftMenu.vue"
 const objectsStore = useObjectsStore();
-// --- Pan & Zoom ---
-// const x = ref(window.innerWidth / 2 - 50000); // canvas ortalanmış başlangıç
-// const y = ref(window.innerHeight / 2 - 50000);
-// const scale = ref(1);
+
 const x = ref(objectsStore.canvasX);
 const y = ref(objectsStore.canvasY);
 const scale = ref(objectsStore.canvasScale);
 onMounted(() => {
-  // Sayfa yüklendiğinde localStorage'dan objeleri ve bağlantıları yükle
-
   objectsStore.loadFromStorage()
   x.value = objectsStore.canvasX
   y.value = objectsStore.canvasY
@@ -119,15 +115,38 @@ function canvasClick(e: MouseEvent) {
   objectsStore.saveToStorage()
 }
 
+const menuVisible = ref(false);
+const menuX = ref(0);
+const menuY = ref(0);
 
+function openMenu(event: MouseEvent) {
+  menuX.value = event.offsetX;
+  menuY.value = event.offsetY;
+  menuVisible.value = true;
+}
+
+function handleSelect() {
+  menuVisible.value = false;
+}
+
+// Sayfaya tıklayınca menüyü kapat
+document.addEventListener('click', () => {
+  menuVisible.value = false;
+});
 </script>
 
 <template>
   <div class="viewport" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseUp" @mouseleave="mouseUp"
     @wheel.prevent="wheel" @click="canvasClick">
     <div class="grid" :style="gridStyle"></div>
-    <div class="canvas" :style="canvasStyle">
+    <div class="canvas" :style="canvasStyle" @contextmenu.prevent="openMenu($event)">
       <slot />
+           <ContextMenu
+      :x="menuX"
+      :y="menuY"
+      :visible="menuVisible"
+      @select="handleSelect"
+    />
     </div>
   </div>
 </template>

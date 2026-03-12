@@ -15,48 +15,44 @@ onMounted(() => {
 });
 const dragging = ref<{
   id: string,
-  startX: number,
-  startY: number,
-  startObjX: number,
-  startObjY: number
+  offsetX: number,
+  offsetY: number
 } | null>(null);
 const resizing = ref<{ id: string, startX: number, startY: number, startSize: number } | null>(null);
 
 function startDrag(e: MouseEvent, objId: string, objX: number, objY: number) {
-  e.stopPropagation(); // diğer eventleri engelle
-  dragging.value = {
-    id: objId,
-    startX: e.clientX,
-    startY: e.clientY,
-    startObjX: objX,
-    startObjY: objY
-  };
+  e.stopPropagation();
+  // mouse ile objenin sol üst köşesi arasındaki fark
+   const offsetX = (e.clientX - objX * objectsStore.canvasScale) / objectsStore.canvasScale;
+  const offsetY = (e.clientY - objY * objectsStore.canvasScale) / objectsStore.canvasScale;
 
-  // Mouse hareketini ve bırakmayı global takip et
+  dragging.value = { id: objId, offsetX, offsetY };
+
   window.addEventListener("mousemove", onDrag);
   window.addEventListener("mouseup", stopDrag);
 }
 function onDrag(e: MouseEvent) {
   if (!dragging.value) return;
-  const dx = e.clientX - dragging.value.startX;
-  const dy = e.clientY - dragging.value.startY;
 
   const obj = objectsStore.objects.find(o => o.id === dragging.value!.id);
   if (obj) {
-    obj.x = dragging.value.startObjX + dx;
-    obj.y = dragging.value.startObjY + dy;
+    obj.x = (e.clientX / objectsStore.canvasScale) - dragging.value.offsetX;
+    obj.y = (e.clientY / objectsStore.canvasScale) - dragging.value.offsetY;
   }
 }
 
-// Drag bitiş
+
 function stopDrag() {
   dragging.value = null;
   window.removeEventListener("mousemove", onDrag);
   window.removeEventListener("mouseup", stopDrag);
-  objectsStore.saveToStorage()
+  objectsStore.saveToStorage();
 }
+
+// Drag bitiş
 function startResize(e: MouseEvent, objId: string, objSize: number) {
   e.stopPropagation(); // başka dragleri engelle
+
   resizing.value = {
     id: objId,
     startX: e.clientX,

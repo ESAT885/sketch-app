@@ -24,31 +24,34 @@ function toggleMenu() {
         class="absolute top-16 left-4 bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col gap-2 z-50 w-48">
         <!-- Not Ekle -->
         <button @click="objectsStore.toogleNoteMode()"
-          :class="objectsStore.noteMode ? 'bg-blue-500 text-white' : 'bg-yellow-300 text-black'"
-          class="rounded p-2 font-medium hover:brightness-90 transition">
+          :class="objectsStore.noteMode ? 'bg-indigo-500 text-white' : 'bg-indigo-300 text-gray-900'"
+          class="rounded p-2 font-medium hover:brightness-105 transition">
           📦 Not Ekle
         </button>
 
         <!-- Doküman Ekle -->
         <button @click="objectsStore.toogleDocMode()"
-          :class="objectsStore.docMode ? 'bg-blue-500 text-white' : 'bg-teal-300 text-black'"
-          class="rounded p-2 font-medium hover:brightness-90 transition">
+          :class="objectsStore.docMode ? 'bg-green-500 text-white' : 'bg-green-300 text-gray-900'"
+          class="rounded p-2 font-medium hover:brightness-105 transition">
           📄 Doküman Ekle
         </button>
 
         <!-- Bağlantı Modu -->
         <button @click="objectsStore.toggleConnectionMode()"
-          :class="objectsStore.connectionMode ? 'bg-blue-500 text-white' : 'bg-cyan-300 text-black'"
-          class="rounded p-2 font-medium hover:brightness-90 transition">
+          :class="objectsStore.connectionMode ? 'bg-cyan-500 text-white' : 'bg-cyan-300 text-gray-900'"
+          class="rounded p-2 font-medium hover:brightness-105 transition">
           🔗 Bağlantı
         </button>
+
+        <!-- Grup Modu -->
         <button @click="objectsStore.toogleGroupMode()"
-          :class="objectsStore.groupMode ? 'bg-blue-500 text-white' : 'bg-cyan-300 text-black'"
-          class="rounded p-2 font-medium hover:brightness-90 transition">
-          🔗 Grup
+          :class="objectsStore.groupMode ? 'bg-pink-500 text-white' : 'bg-pink-300 text-gray-900'"
+          class="rounded p-2 font-medium hover:brightness-105 transition">
+          🗂️ Grup
         </button>
+
         <!-- Versiyon -->
-        <p class="text-sm text-gray-300 mt-2">Version: 1.0.0</p>
+        <p class="text-sm text-gray-400 mt-2">Version: 1.0.0</p>
       </div>
     </transition>
 
