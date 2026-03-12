@@ -1,18 +1,11 @@
 <script setup lang="ts">
-import { useObjectsStore, type CanvasObject } from "@/stores/object.store";
-import { onMounted, ref } from "vue";
-const objectsStore = useObjectsStore();
-const props = defineProps<{
-  obj: CanvasObject
+import { useObjectsStore, type Group } from '@/stores/object.store';
+import { ref } from 'vue';
+
+defineProps<{
+  group: Group
 }>();
-
-onMounted(() => {
-  const el = document.getElementById(`note-${props.obj.id}`);
-  if (!el)
-    return
-  el.innerText = props.obj.text ?? "";
-
-});
+const objectsStore = useObjectsStore();
 const dragging = ref<{
   id: string,
   startX: number,
@@ -41,7 +34,7 @@ function onDrag(e: MouseEvent) {
   const dx = e.clientX - dragging.value.startX;
   const dy = e.clientY - dragging.value.startY;
 
-  const obj = objectsStore.objects.find(o => o.id === dragging.value!.id);
+  const obj = objectsStore.groups.find(o => o.id === dragging.value!.id);
   if (obj) {
     obj.x = dragging.value.startObjX + dx;
     obj.y = dragging.value.startObjY + dy;
@@ -72,7 +65,7 @@ function onResize(e: MouseEvent) {
   const dy = e.clientY - resizing.value.startY;
   const newSize = Math.max(10, resizing.value.startSize + Math.max(dx, dy));
 
-  const obj = objectsStore.objects.find(o => o.id === resizing.value!.id);
+  const obj = objectsStore.groups.find(o => o.id === resizing.value!.id);
   if (obj) obj.size = newSize;
 }
 
@@ -81,38 +74,40 @@ function stopResize() {
   window.removeEventListener('mousemove', onResize);
   window.removeEventListener('mouseup', stopResize);
 }
-function updateText(id: string, newText: string) {
-  const item = objectsStore.objects.find(o => o.id === id);
-  if (item) item.text = newText; // store üzerinden güncelleme
-}
+
 </script>
 
 <template>
-  <div @mousedown="(e) => startDrag(e, obj.id, obj.x, obj.y)"
-    class="bg-yellow-400 flex justify-between items-center p-1 rounded-t font-bold cursor-grab select-none text-black">
-    <span>{{ obj.title || 'Başlık' }}</span>
-    <button @mousedown.stop @click="objectsStore.removeObject(obj.id)" class="px-2 hover:bg-red-200 rounded">✕</button>
+
+  <div :style="{
+    width: group.size + 'px',
+    height: group.size + 'px',
+
+
+  }">
+    <div :style="{
+      position: 'absolute',
+      top: '-' + -1 + 'px', // border'ın üstüne taşı
+      left: '50%',
+      transform: 'translateX(-50%)',
+
+   
+      fontWeight: 'bold',
+
+      borderRadius: '4px',
+    }">
+
+      <div @mousedown="(e) => startDrag(e, group.id ?? '', group.x, group.y)"
+        class="bg-yellow-400 flex justify-between items-center p-1 rounded-t font-bold cursor-grab select-none text-black">
+        <span> {{ group.title }}</span>
+        <button @mousedown.stop @click="objectsStore.removeGroup(group.id??'')"
+          class="px-2 hover:bg-red-200 rounded">✕</button>
+      </div>
+    </div>
+    <div @mousedown="(e) => startResize(e, group.id ?? '', group.size)"
+      class="absolute bottom-0 right-0 w-3 h-3 bg-white border border-gray-600 cursor-se-resize"
+      style="touch-action: none;"></div>
   </div>
-
-
-
-  <div :id="`note-${obj.id}`" class="flex-1 p-2 overflow-auto text-sm text-black text-lg" contenteditable="true"
-    @input="(e) => updateText(obj.id, (e.target as HTMLDivElement).innerText)" @mousedown.stop></div>
-
-  <div @mousedown="(e) => startResize(e, obj.id, obj.size)"
-    class="absolute bottom-0 right-0 w-3 h-3 bg-white border border-gray-600 cursor-se-resize"
-    style="touch-action: none;"></div>
-
 </template>
 
-<style>
-/* Hover efekti ile daha “yapışkan” görünümü */
-div:hover {
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-}
-
-/* Editable içerik seçimi için */
-[contenteditable]:focus {
-  outline: 2px dashed rgba(0, 0, 0, 0.3);
-}
-</style>
+<style scoped></style>

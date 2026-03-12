@@ -13,46 +13,40 @@ function toggleMenu() {
 <template>
   <div class="relative flex h-screen bg-gray-900 text-white">
     <!-- Menü Toggle İkonu -->
-    <button
-      @click="toggleMenu"
-      class="absolute top-4 left-4 z-50 w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-600 transition-colors"
-    >
+    <button @click="toggleMenu"
+      class="absolute top-4 left-4 z-50 w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-600 transition-colors">
       ☰
     </button>
 
     <!-- Açılır Menü -->
     <transition name="fade-slide">
-      <div
-        v-if="menuOpen"
-        class="absolute top-16 left-4 bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col gap-2 z-50 w-48"
-      >
+      <div v-if="menuOpen"
+        class="absolute top-16 left-4 bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col gap-2 z-50 w-48">
         <!-- Not Ekle -->
-        <button
-          @click="objectsStore.toogleNoteMode()"
+        <button @click="objectsStore.toogleNoteMode()"
           :class="objectsStore.noteMode ? 'bg-blue-500 text-white' : 'bg-yellow-300 text-black'"
-          class="rounded p-2 font-medium hover:brightness-90 transition"
-        >
+          class="rounded p-2 font-medium hover:brightness-90 transition">
           📦 Not Ekle
         </button>
 
         <!-- Doküman Ekle -->
-        <button
-          @click="objectsStore.toogleDocMode()"
+        <button @click="objectsStore.toogleDocMode()"
           :class="objectsStore.docMode ? 'bg-blue-500 text-white' : 'bg-teal-300 text-black'"
-          class="rounded p-2 font-medium hover:brightness-90 transition"
-        >
+          class="rounded p-2 font-medium hover:brightness-90 transition">
           📄 Doküman Ekle
         </button>
 
         <!-- Bağlantı Modu -->
-        <button
-          @click="objectsStore.toggleConnectionMode()"
+        <button @click="objectsStore.toggleConnectionMode()"
           :class="objectsStore.connectionMode ? 'bg-blue-500 text-white' : 'bg-cyan-300 text-black'"
-          class="rounded p-2 font-medium hover:brightness-90 transition"
-        >
+          class="rounded p-2 font-medium hover:brightness-90 transition">
           🔗 Bağlantı
         </button>
-
+        <button @click="objectsStore.toogleGroupMode()"
+          :class="objectsStore.groupMode ? 'bg-blue-500 text-white' : 'bg-cyan-300 text-black'"
+          class="rounded p-2 font-medium hover:brightness-90 transition">
+          🔗 Grup
+        </button>
         <!-- Versiyon -->
         <p class="text-sm text-gray-300 mt-2">Version: 1.0.0</p>
       </div>

@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 
 export type CanvasObject = {
   id: string;
-  type?: "note" | "doc" | "circle" | "diagram"; // farklı şekiller
+  type?: "note" | "doc" | "circle" | "group"; // farklı şekiller
   x: number;
   y: number;
   size: number;
@@ -16,6 +16,14 @@ export interface Connection {
   from: string
   to: string
 }
+export interface Group {
+  id?: string
+  x: number;
+  y: number;
+  size: number;
+  title: string;
+  canvasObjects?: CanvasObject[]
+}
 export const useObjectsStore = defineStore("objects", {
   state: () => ({
     objects: [
@@ -23,9 +31,11 @@ export const useObjectsStore = defineStore("objects", {
 
     ] as CanvasObject[],
     connections: [] as Connection[],
+    groups: [] as Group[],
     connectionMode: false,
     noteMode: false,
     docMode: false,
+    groupMode: false,
     selectedNodes: [] as string[],
     selectedConnection: null as Connection | null,
 
@@ -43,13 +53,13 @@ export const useObjectsStore = defineStore("objects", {
       const data = JSON.parse(saved);
       this.objects = data.objects || [];
       this.connections = data.connections || [];
-
+      this.groups = data.groups || []
       if (data.canvas) {
 
         this.canvasX = data.canvas.x ?? this.canvasX;
         this.canvasY = data.canvas.y ?? this.canvasY;
         this.canvasScale = data.canvas.scale ?? this.canvasScale;
-       
+
       }
     },
     saveToStorage() {
@@ -61,6 +71,7 @@ export const useObjectsStore = defineStore("objects", {
           y: this.canvasY,
           scale: this.canvasScale,
         },
+        groups: this.groups
       };
       localStorage.setItem("canvas_data", JSON.stringify(data));
 
@@ -70,8 +81,20 @@ export const useObjectsStore = defineStore("objects", {
       this.allmodeFalse()
     },
 
+    addGroup(obj: Omit<Group, "id">) {
+      this.groups.push({ ...obj, id: crypto.randomUUID().toString() });
+      this.allmodeFalse()
+    },
     removeObject(id: string) {
       this.objects = this.objects.filter(o => o.id !== id);
+      console.log(id)
+      this.connections = this.connections.filter(
+        c => c.from !== id && c.to !== id
+      )
+
+    },
+    removeGroup(id: string) {
+      this.groups = this.groups.filter(t => t.id !== id)
     },
     connect(a: string, b: string) {
       this.connections.push({
@@ -113,10 +136,37 @@ export const useObjectsStore = defineStore("objects", {
       this.docMode = !this.docMode
 
     },
+    toogleGroupMode() {
+      this.allmodeFalse()
+      this.groupMode = !this.groupMode
+
+    },
     allmodeFalse() {
       this.connectionMode = false
       this.noteMode = false
       this.docMode = false
+      this.groupMode = false
+    },
+    getCurrentType(): CanvasObject["type"] {
+      console.log(this.noteMode)
+      console.log(this.docMode)
+      console.log(this.groupMode)
+
+      switch (true) {
+
+        case this.noteMode:
+          return "note"
+
+        case this.docMode:
+          return "doc"
+
+        case this.groupMode:
+          return "group"
+
+        default:
+          return "circle"
+      }
+
     }
   },
 });

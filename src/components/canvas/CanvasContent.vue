@@ -2,15 +2,8 @@
 
 import { useObjectsStore, type Connection } from "@/stores/object.store";
 import NoteItem from "@/components/canvas/contentItems/NoteItem.vue"
+import GroupItem from "@/components/canvas/contentItems/GroupItem.vue"
 const objectsStore = useObjectsStore();
-
-
-
-
-
-
-
-
 function getCenter(id: string) {
 
   const obj = objectsStore.objects.find(o => o.id === id)
@@ -54,6 +47,17 @@ function selectedNode(c: Connection) {
 </script>
 
 <template>
+
+  <div v-for="group in objectsStore.groups" :key="group.id" :style="{
+    position: 'absolute',
+    left: group.x + 'px',
+    top: group.y + 'px',
+    width: group.size + 'px',
+    height: group.size + 'px'
+  }" class="0 bg-blue-100/50 border-2  rounded-lg">
+    <GroupItem :group="group"></GroupItem>
+
+  </div>
   <svg class="absolute left-0 top-0 w-full h-full pointer-events-none">
 
     <path v-for="c in objectsStore.connections" :key="c.from + c.to" :d="getBezierPath(c)" stroke-width="3" fill="none"
@@ -80,15 +84,10 @@ function selectedNode(c: Connection) {
     <template v-if="obj.type === 'note'">
       <NoteItem :obj="obj"></NoteItem>
 
-
-
-
     </template>
 
-
-
-
   </div>
+
 </template>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useObjectsStore } from "@/stores/object.store";
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 const objectsStore = useObjectsStore();
 // --- Pan & Zoom ---
 // const x = ref(window.innerWidth / 2 - 50000); // canvas ortalanmış başlangıç
@@ -12,7 +12,7 @@ const scale = ref(objectsStore.canvasScale);
 onMounted(() => {
   // Sayfa yüklendiğinde localStorage'dan objeleri ve bağlantıları yükle
 
- objectsStore.loadFromStorage()
+  objectsStore.loadFromStorage()
   x.value = objectsStore.canvasX
   y.value = objectsStore.canvasY
   scale.value = objectsStore.canvasScale
@@ -37,9 +37,9 @@ function mouseMove(e: MouseEvent) {
   startX = e.clientX;
   startY = e.clientY;
 
-    objectsStore.canvasX = x.value;
+  objectsStore.canvasX = x.value;
   objectsStore.canvasY = y.value;
-  objectsStore.canvasScale=scale.value
+  objectsStore.canvasScale = scale.value
   objectsStore.saveToStorage()
 }
 
@@ -69,9 +69,9 @@ function wheel(e: WheelEvent) {
 
 
 
-        objectsStore.canvasX = x.value;
+  objectsStore.canvasX = x.value;
   objectsStore.canvasY = y.value;
-  objectsStore.canvasScale=scale.value
+  objectsStore.canvasScale = scale.value
   objectsStore.saveToStorage()
 }
 
@@ -87,7 +87,6 @@ const gridStyle = computed(() => ({
 
 function canvasClick(e: MouseEvent) {
 
-  console.log("Canvas clicked at:", e.clientX, e.clientY);
   // Eğer canvas sürükleniyorsa ekleme yapma
   if (dragging) return;
 
@@ -95,17 +94,29 @@ function canvasClick(e: MouseEvent) {
   const cy = (e.clientY - y.value) / scale.value;
 
 
-  if (objectsStore.noteMode||objectsStore.docMode) {
+  if (objectsStore.noteMode || objectsStore.docMode) {
 
 
     objectsStore.addObject({
 
-      type:objectsStore.noteMode ? "note" : "doc",
+      type: objectsStore.getCurrentType(),
       x: cx,
       y: cy,
-     size: 150, color: "", title: 'Alışveriş Listesi', text: 'Alışveriş listesi'
+      size: 150, color: "", title: 'Alışveriş Listesi', text: 'Alışveriş listesi',
+
     });
   }
+  if (objectsStore.groupMode) {
+    console.log("group")
+    objectsStore.addGroup({
+      x: cx,
+      y: cy,
+      size: 500,
+      title: "Grup",
+
+    })
+  }
+  objectsStore.saveToStorage()
 }
 
 
