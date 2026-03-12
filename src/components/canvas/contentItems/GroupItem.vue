@@ -1,54 +1,47 @@
 <script setup lang="ts">
 import { useObjectsStore, type Group } from '@/stores/object.store';
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 
 defineProps<{
   group: Group
 }>();
+
 const objectsStore = useObjectsStore();
-const dragging = ref<{
-  id: string,
-  offsetX: number,
-  offsetY: number
-} | null>(null);
+const dragging = ref<{ id: string, offsetX: number, offsetY: number } | null>(null);
 const resizing = ref<{ id: string, startX: number, startY: number, startSize: number } | null>(null);
 
-function startDrag(e: MouseEvent, objId: string, objX: number, objY: number) {
-  e.stopPropagation(); // diğer eventleri engelle
-    const offsetX = (e.clientX - objX * objectsStore.canvasScale) / objectsStore.canvasScale;
-  const offsetY = (e.clientY - objY * objectsStore.canvasScale) / objectsStore.canvasScale;
- dragging.value = { id: objId, offsetX, offsetY };
+// --- Başlık edit state ---
+const editingTitleId = ref<string | null>(null);
+const newTitle = ref<string>("");
 
-  // Mouse hareketini ve bırakmayı global takip et
+// --- Drag ---
+function startDrag(e: MouseEvent, objId: string, objX: number, objY: number) {
+  e.stopPropagation();
+  const offsetX = (e.clientX - objX * objectsStore.canvasScale) / objectsStore.canvasScale;
+  const offsetY = (e.clientY - objY * objectsStore.canvasScale) / objectsStore.canvasScale;
+  dragging.value = { id: objId, offsetX, offsetY };
   window.addEventListener("mousemove", onDrag);
   window.addEventListener("mouseup", stopDrag);
 }
 function onDrag(e: MouseEvent) {
   if (!dragging.value) return;
-  
-
-const group = objectsStore.groups.find(o => o.id === dragging.value!.id);
+  const group = objectsStore.groups.find(o => o.id === dragging.value!.id);
   if (group) {
     group.x = (e.clientX / objectsStore.canvasScale) - dragging.value.offsetX;
     group.y = (e.clientY / objectsStore.canvasScale) - dragging.value.offsetY;
   }
 }
-
-// Drag bitiş
 function stopDrag() {
   dragging.value = null;
   window.removeEventListener("mousemove", onDrag);
   window.removeEventListener("mouseup", stopDrag);
-  objectsStore.saveToStorage()
+  objectsStore.saveToStorage();
 }
+
+// --- Resize ---
 function startResize(e: MouseEvent, objId: string, objSize: number) {
-  e.stopPropagation(); // başka dragleri engelle
-  resizing.value = {
-    id: objId,
-    startX: e.clientX,
-    startY: e.clientY,
-    startSize: objSize
-  }
+  e.stopPropagation();
+  resizing.value = { id: objId, startX: e.clientX, startY: e.clientY, startSize: objSize };
   window.addEventListener('mousemove', onResize);
   window.addEventListener('mouseup', stopResize);
 }
@@ -57,49 +50,68 @@ function onResize(e: MouseEvent) {
   const dx = e.clientX - resizing.value.startX;
   const dy = e.clientY - resizing.value.startY;
   const newSize = Math.max(10, resizing.value.startSize + Math.max(dx, dy));
-
   const obj = objectsStore.groups.find(o => o.id === resizing.value!.id);
   if (obj) obj.size = newSize;
 }
-
 function stopResize() {
   resizing.value = null;
   window.removeEventListener('mousemove', onResize);
   window.removeEventListener('mouseup', stopResize);
 }
 
+// --- Başlık edit fonksiyonları ---
+function startEditTitle(group: Group) {
+  editingTitleId.value = group.id??"";
+  newTitle.value = group.title;
+  nextTick(() => {
+    const el = document.getElementById(`group-title-${group.id}`) as HTMLInputElement;
+    if (el) el.focus();
+  });
+}
+function saveTitle(group: Group) {
+  const item = objectsStore.groups.find(o => o.id === group.id);
+  if (item) item.title = newTitle.value;
+  editingTitleId.value = null;
+}
 </script>
 
 <template>
+  <div :style="{ width: group.size + 'px', height: group.size + 'px', position: 'relative' }">
 
-  <div :style="{
-    width: group.size + 'px',
-    height: group.size + 'px',
-
-
-  }">
     <div :style="{
       position: 'absolute',
-      top: '-' + -1 + 'px', // border'ın üstüne taşı
+      top: '-1px',
       left: '50%',
       transform: 'translateX(-50%)',
-
-
       fontWeight: 'bold',
-
       borderRadius: '4px',
+      width: 'max-content'
     }">
 
+      <!-- Başlık -->
       <div @mousedown="(e) => startDrag(e, group.id ?? '', group.x, group.y)"
-        class="bg-yellow-400 flex justify-between items-center p-1 rounded-t font-bold cursor-grab select-none text-black">
-        <span> {{ group.title }}</span>
-        <button @mousedown.stop @click="objectsStore.removeGroup(group.id??'')"
-          class=" ml-2 px-2 hover:bg-red-200 rounded">✕</button>
+           class="bg-yellow-400 flex justify-between items-center p-1 rounded-t font-bold cursor-grab select-none text-black">
+
+        <span v-if="editingTitleId !== group.id" @dblclick="startEditTitle(group)">
+          {{ group.title }}
+        </span>
+
+        <input v-else @mousedown.stop
+               v-model="newTitle"
+               :id="`group-title-${group.id}`"
+               @blur="() => saveTitle(group)"
+               @keyup.enter="() => saveTitle(group)"
+               class="px-1 text-black border rounded w-full" />
+
+        <button @mousedown.stop @click="objectsStore.removeGroup(group.id ?? '')"
+                class="ml-2 px-2 hover:bg-red-200 rounded">✕</button>
       </div>
     </div>
+
+    <!-- Resize handle -->
     <div @mousedown="(e) => startResize(e, group.id ?? '', group.size)"
-      class="absolute bottom-0 right-0 w-3 h-3 bg-white border border-gray-600 cursor-se-resize"
-      style="touch-action: none;"></div>
+         class="absolute bottom-0 right-0 w-3 h-3 bg-white border border-gray-600 cursor-se-resize"
+         style="touch-action: none;"></div>
   </div>
 </template>
 
