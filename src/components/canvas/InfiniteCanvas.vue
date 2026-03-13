@@ -91,8 +91,6 @@ function canvasClick(e: MouseEvent) {
 
 
   if (objectsStore.noteMode || objectsStore.docMode) {
-
-
     objectsStore.addObject({
 
       type: objectsStore.getCurrentType(),
@@ -123,6 +121,17 @@ function canvasClick(e: MouseEvent) {
       title: "Başlık",
       width: 150,
       height: 50
+    })
+  }
+  if(objectsStore.checkListMode){
+    objectsStore.addCheckList({
+      x: cx,
+      y: cy,
+      size: 100,
+      title: "Başlık",
+      width: 250,
+      height: 450,
+      checkListDetails:[]
     })
   }
   objectsStore.saveToStorage()

@@ -118,12 +118,12 @@ function saveText(obj: CanvasObject) {
 
   <!-- Note Text -->
   <div v-if="editingTextId !== obj.id" :id="`note-${obj.id}`"
-    class="flex-1 p-2 overflow-auto text-sm text-black text-lg" @dblclick="startEditText(obj)" @mousedown.stop>
+    class="select-none flex-1 p-2 overflow-auto text-sm text-black text-lg" @dblclick="startEditText(obj)" @mousedown.stop>
     {{ obj.text }}
   </div>
 
   <textarea v-else v-model="newText" :id="`note-${obj.id}`" @mousedown.stop @blur="saveText(obj)"
-    @keyup.enter="saveText(obj)" class="flex-1 p-2 text-black border rounded resize-none w-full h-full"
+     class="flex-1 p-2 text-black border rounded resize-none w-full h-full"
     style="outline: none; overflow:auto;"></textarea>
 
   <!-- Resize handle -->

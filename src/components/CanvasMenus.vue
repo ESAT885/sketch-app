@@ -33,8 +33,13 @@ function toggleMenu() {
           class="rounded p-2 font-medium hover:brightness-105 transition">
           📦 Not Ekle
         </button>
+        <!-- Not Ekle -->
+        <button @click="objectsStore.toggleCheckList()"
+          :class="objectsStore.checkListMode ? 'bg-indigo-500 text-white' : 'bg-indigo-300 text-gray-900'"
+          class="rounded p-2 font-medium hover:brightness-105 transition">
+          📦 Liste Ekle
+        </button>
 
-      
 
         <!-- Bağlantı Modu -->
         <button @click="objectsStore.toggleConnectionMode()"

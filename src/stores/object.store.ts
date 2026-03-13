@@ -9,8 +9,8 @@ interface BaseCanvasItem {
   x: number;
   y: number;
   size: number;
-  width:number;
-  height:number;
+  width: number;
+  height: number;
   title: string;
   color?: string;
 }
@@ -34,11 +34,19 @@ export interface Group extends BaseCanvasItem {
 export interface CanvasTitle extends BaseCanvasItem {
   kind: "title";
 }
-
+export interface CheckList extends BaseCanvasItem {
+  kind: "checkList";
+  checkListDetails: CheckListDetail[]
+}
+export interface CheckListDetail {
+  check: boolean;
+  title: string
+}
 export type CanvasItem =
   | CanvasObject
   | Group
-  | CanvasTitle;
+  | CanvasTitle
+  | CheckList;
 
 /* ================================
 CONNECTION
@@ -62,7 +70,7 @@ interface CanvasStoreState {
   docMode: boolean;
   groupMode: boolean;
   canvasTitleMode: boolean;
-
+  checkListMode: boolean;
   selectedNodes: string[];
   selectedConnection: Connection | null;
 
@@ -88,8 +96,8 @@ export const useObjectsStore = defineStore("objects", {
         size: 150,
         title: "Alışveriş Listesi",
         text: "Alışveriş listesi",
-        width:150,
-        height:150
+        width: 150,
+        height: 150
       }
     ],
 
@@ -100,7 +108,7 @@ export const useObjectsStore = defineStore("objects", {
     docMode: false,
     groupMode: false,
     canvasTitleMode: false,
-
+    checkListMode: false,
     selectedNodes: [],
     selectedConnection: null,
 
@@ -122,8 +130,9 @@ export const useObjectsStore = defineStore("objects", {
       state.items.filter(i => i.kind === "group") as Group[],
 
     canvasTitles: (state) =>
-      state.items.filter(i => i.kind === "title") as CanvasTitle[]
-
+      state.items.filter(i => i.kind === "title") as CanvasTitle[],
+    checkLists: (state) =>
+      state.items.filter(i => i.kind === "checkList") as CheckList[]
   },
 
   /* ================================
@@ -215,6 +224,17 @@ export const useObjectsStore = defineStore("objects", {
       this.resetModes();
 
     },
+    addCheckList(title: Omit<CheckList, "id" | "kind">) {
+
+      this.items.push({
+        ...title,
+        kind: "checkList",
+        id: crypto.randomUUID()
+      });
+
+      this.resetModes();
+
+    },
 
     /* ==========================
        REMOVE
@@ -253,8 +273,8 @@ export const useObjectsStore = defineStore("objects", {
       if (this.selectedNodes.length === 2) {
 
         this.connections.push({
-          from: this.selectedNodes[0]??'',
-          to: this.selectedNodes[1]??''
+          from: this.selectedNodes[0] ?? '',
+          to: this.selectedNodes[1] ?? ''
         });
 
         this.selectedNodes = [];
@@ -302,7 +322,10 @@ export const useObjectsStore = defineStore("objects", {
       this.canvasTitleMode = true;
 
     },
-
+    toggleCheckList() {
+      this.resetModes();
+      this.checkListMode = true;
+    },
     resetModes() {
 
       this.connectionMode = false;
@@ -310,7 +333,7 @@ export const useObjectsStore = defineStore("objects", {
       this.docMode = false;
       this.groupMode = false;
       this.canvasTitleMode = false;
-
+      this.checkListMode = false;
     },
 
     /* ==========================

@@ -4,37 +4,61 @@ import { useObjectsStore, type Connection } from "@/stores/object.store";
 import NoteItem from "@/components/canvas/contentItems/NoteItem.vue"
 import GroupItem from "@/components/canvas/contentItems/GroupItem.vue"
 import TitleItem from "@/components/canvas/contentItems/TitleItem.vue"
+import CheckList from "@/components/canvas/contentItems/Checklist.vue"
 const objectsStore = useObjectsStore();
 function getCenter(id: string) {
 
   const obj = objectsStore.items.find(o => o.id === id)
-
-  if (!obj) return { x: 0, y: 0 }
+  if (!obj) return { x: 0, y: 0 };
 
   return {
     x: obj.x + obj.width / 2,
-    y: obj.y +obj.height / 2
+    y: obj.y + obj.height / 2
   }
+  // switch (obj.kind) {
+  //   case "object":
+
+  //     return {
+  //       x: obj.x + obj.width / 2,
+  //       y: obj.y + 5
+  //     }
+  //     break
+  //   case "title":
+  //     return {
+  //       x: obj.x + obj.width / 2,
+  //       y: obj.y + obj.height - 5
+  //     }
+  //     break
+  //   case "group":
+  //     return {
+  //       x: obj.x + obj.width / 2,
+  //       y: obj.y + 5
+  //     }
+  //     break
+  // }
+
 
 }
 function getBezierPath(c: Connection) {
-
   const a = getCenter(c.from)
   const b = getCenter(c.to)
 
-  const dx = Math.abs(b.x - a.x) * 0.5
+  if (!a || !b) return ''
 
-  const c1x = a.x + dx
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const dist = Math.sqrt(dx * dx + dy * dy)
+
+  // Kontrol noktası uzaklığı mesafeye göre ayarlanıyor
+  const curveFactor = Math.min(0.5, dist / 200) // 200px üzeri mesafe için max %50
+  const c1x = a.x + dx * curveFactor
   const c1y = a.y
-
-  const c2x = b.x - dx
+  const c2x = b.x - dx * curveFactor
   const c2y = b.y
 
   return `
     M ${a.x} ${a.y}
-    C ${c1x} ${c1y},
-      ${c2x} ${c2y},
-      ${b.x} ${b.y}
+    C ${c1x} ${c1y}, ${c2x} ${c2y}, ${b.x} ${b.y}
   `
 }
 function selectedNode(c: Connection) {
@@ -48,17 +72,6 @@ function selectedNode(c: Connection) {
 </script>
 
 <template>
-
-  <div @click="objectsStore.selectNode(group.id ?? '')" v-for="group in objectsStore.groups" :key="group.id" :style="{
-    position: 'absolute',
-    left: group.x + 'px',
-    top: group.y + 'px',
-      width: group.width + 'px',
-      height: group.height + 'px',
-  }" class="0 bg-blue-100/50 border-2  rounded-lg">
-    <GroupItem :group="group"></GroupItem>
-
-  </div>
   <svg class="absolute left-0 top-0 w-full h-full pointer-events-none">
 
     <path v-for="c in objectsStore.connections" :key="c.from + c.to" :d="getBezierPath(c)" stroke-width="3" fill="none"
@@ -66,6 +79,17 @@ function selectedNode(c: Connection) {
       :stroke="objectsStore.selectedConnection == c ? '#f87171' : '#facc15'" />
 
   </svg>
+  <div @click="objectsStore.selectNode(group.id ?? '')" v-for="group in objectsStore.groups" :key="group.id" :style="{
+    position: 'absolute',
+    left: group.x + 'px',
+    top: group.y + 'px',
+    width: group.width + 'px',
+    height: group.height + 'px',
+  }" class="0 bg-blue-100/50 border-2  rounded-lg">
+    <GroupItem :group="group"></GroupItem>
+
+  </div>
+
   <div v-for="canvaTitle in objectsStore.canvasTitles" @click="objectsStore.selectNode(canvaTitle.id ?? '')"
     :key="canvaTitle.id" :style="{
       position: 'absolute',
@@ -100,7 +124,18 @@ function selectedNode(c: Connection) {
     </template>
 
   </div>
+<div v-for="checkList in objectsStore.checkLists" @click="objectsStore.selectNode(checkList.id ?? '')"
+    :key="checkList.id" :style="{
+      position: 'absolute',
+      left: checkList.x + 'px',
+      top: checkList.y + 'px',
+      width: checkList.width + 'px',
+      height: checkList.height + 'px',
+  background: checkList.color || '#fffa77',
+    }" class=" bg-blue-100/50 border-2  rounded-lg">
+    <CheckList :obj="checkList"></CheckList>
 
+  </div>
 </template>
 
 <style scoped>
