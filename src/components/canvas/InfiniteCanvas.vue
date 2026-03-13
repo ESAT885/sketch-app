@@ -99,17 +99,30 @@ function canvasClick(e: MouseEvent) {
       x: cx,
       y: cy,
       size: 150, color: "", title: 'Alışveriş Listesi', text: 'Alışveriş listesi',
+      width: 150,
+      height: 150
 
     });
   }
   if (objectsStore.groupMode) {
-    console.log("group")
+
     objectsStore.addGroup({
       x: cx,
       y: cy,
       size: 500,
       title: "Grup",
-
+      width: 150,
+      height: 150
+    })
+  }
+  if (objectsStore.canvasTitleMode) {
+    objectsStore.addCanvasTitle({
+      x: cx,
+      y: cy,
+      size: 100,
+      title: "Başlık",
+      width: 150,
+      height: 50
     })
   }
   objectsStore.saveToStorage()
@@ -141,12 +154,7 @@ document.addEventListener('click', () => {
     <div class="grid" :style="gridStyle"></div>
     <div class="canvas" :style="canvasStyle" @contextmenu.prevent="openMenu($event)">
       <slot />
-           <ContextMenu
-      :x="menuX"
-      :y="menuY"
-      :visible="menuVisible"
-      @select="handleSelect"
-    />
+      <ContextMenu :x="menuX" :y="menuY" :visible="menuVisible" @select="handleSelect" />
     </div>
   </div>
 </template>

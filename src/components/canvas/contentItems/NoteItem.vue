@@ -7,7 +7,7 @@ const props = defineProps<{ obj: CanvasObject }>();
 
 // Drag & Resize state (senin kodun)
 const dragging = ref<{ id: string, offsetX: number, offsetY: number } | null>(null);
-const resizing = ref<{ id: string, startX: number, startY: number, startSize: number } | null>(null);
+const resizing = ref<{ id: string, startX: number, startY: number, height: number, width: number } | null>(null);
 
 // Edit state
 const editingTitleId = ref<string | null>(null);
@@ -47,9 +47,9 @@ function stopDrag() {
   objectsStore.saveToStorage();
 }
 
-function startResize(e: MouseEvent, objId: string, objSize: number) {
+function startResize(e: MouseEvent, objId: string, height: number, width: number) {
   e.stopPropagation();
-  resizing.value = { id: objId, startX: e.clientX, startY: e.clientY, startSize: objSize };
+  resizing.value = { id: objId, startX: e.clientX, startY: e.clientY, height, width };
   window.addEventListener('mousemove', onResize);
   window.addEventListener('mouseup', stopResize);
 }
@@ -57,9 +57,11 @@ function onResize(e: MouseEvent) {
   if (!resizing.value) return;
   const dx = e.clientX - resizing.value.startX;
   const dy = e.clientY - resizing.value.startY;
-  const newSize = Math.max(10, resizing.value.startSize + Math.max(dx, dy));
   const obj = objectsStore.objects.find(o => o.id === resizing.value!.id);
-  if (obj) obj.size = newSize;
+  if (obj) {
+    obj.width = Math.max(80, resizing.value.width + dx)
+    obj.height = Math.max(60, resizing.value.height + dy)
+  }
 }
 function stopResize() {
   resizing.value = null;
@@ -69,7 +71,7 @@ function stopResize() {
 
 // --- Title edit ---
 function startEditTitle(obj: CanvasObject) {
-  editingTitleId.value = obj.id;
+  editingTitleId.value = obj.id ?? "";
   newTitle.value = obj.title;
   nextTick(() => {
     const el = document.getElementById(`title-${obj.id}`) as HTMLInputElement;
@@ -84,7 +86,7 @@ function saveTitle(obj: CanvasObject) {
 
 // --- Text edit ---
 function startEditText(obj: CanvasObject) {
-  editingTextId.value = obj.id;
+  editingTextId.value = obj.id ?? "";
   newText.value = obj.text ?? "";
   nextTick(() => {
     const el = document.getElementById(`note-${obj.id}`) as HTMLTextAreaElement;
@@ -100,17 +102,18 @@ function saveText(obj: CanvasObject) {
 
 <template>
   <!-- Header -->
-  <div @mousedown="(e) => startDrag(e, obj.id, obj.x, obj.y)"
+  <div @mousedown="(e) => startDrag(e, obj.id ?? '', obj.x, obj.y)"
     class="bg-yellow-400 flex justify-between items-center p-1 rounded-t font-bold cursor-grab select-none text-black">
 
     <span v-if="editingTitleId !== obj.id" @dblclick="startEditTitle(obj)">
       {{ obj.title || 'Başlık' }}
     </span>
 
-    <input v-else @mousedown.stop v-model="newTitle" id="title-{{obj.id}}" @blur="saveTitle(obj)"
+    <input v-else @mousedown.stop v-model="newTitle" :id="`title-${obj.id}`" @blur="saveTitle(obj)"
       @keyup.enter="saveTitle(obj)" class="px-1 text-black border rounded w-full" />
 
-    <button @mousedown.stop @click="objectsStore.removeObject(obj.id)" class="px-2 hover:bg-red-200 rounded">✕</button>
+    <button @mousedown.stop @click="objectsStore.removeItem(obj.id ?? '')"
+      class="px-2 hover:bg-red-200 rounded">✕</button>
   </div>
 
   <!-- Note Text -->
@@ -119,14 +122,13 @@ function saveText(obj: CanvasObject) {
     {{ obj.text }}
   </div>
 
-  <textarea v-else v-model="newText" :id="`note-${obj.id}`" @mousedown.stop @blur="saveText(obj)" @keyup.enter="saveText(obj)"
-    class="flex-1 p-2 text-black border rounded resize-none w-full h-full"
+  <textarea v-else v-model="newText" :id="`note-${obj.id}`" @mousedown.stop @blur="saveText(obj)"
+    @keyup.enter="saveText(obj)" class="flex-1 p-2 text-black border rounded resize-none w-full h-full"
     style="outline: none; overflow:auto;"></textarea>
 
   <!-- Resize handle -->
-  <div @mousedown="(e) => startResize(e, obj.id, obj.size)"
-    class="absolute bottom-0 right-0 w-3 h-3 bg-white border border-gray-600 cursor-se-resize"
-    style="touch-action: none;"></div>
+  <div @mousedown="(e) => startResize(e, obj.id ?? '', obj.height, obj.width)" class="absolute bottom-0 right-0 w-3 h-3 bg-white border border-gray-600 cursor-se-resize
+           translate-x-1/2 translate-y-1/2" style="touch-action: none;"></div>
 </template>
 
 <style>

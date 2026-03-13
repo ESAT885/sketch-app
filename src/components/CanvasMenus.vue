@@ -22,19 +22,19 @@ function toggleMenu() {
     <transition name="fade-slide">
       <div v-if="menuOpen"
         class="absolute top-16 left-4 bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col gap-2 z-50 w-48">
+        <button @click="objectsStore.toggleCanvasTitle()"
+          :class="objectsStore.canvasTitleMode ? 'bg-indigo-500 text-white' : 'bg-indigo-300 text-gray-900'"
+          class="rounded p-2 font-medium hover:brightness-105 transition">
+          📦 Başlık Ekle
+        </button>
         <!-- Not Ekle -->
-        <button @click="objectsStore.toogleNoteMode()"
+        <button @click="objectsStore.toggleNoteMode()"
           :class="objectsStore.noteMode ? 'bg-indigo-500 text-white' : 'bg-indigo-300 text-gray-900'"
           class="rounded p-2 font-medium hover:brightness-105 transition">
           📦 Not Ekle
         </button>
 
-        <!-- Doküman Ekle -->
-        <button @click="objectsStore.toogleDocMode()"
-          :class="objectsStore.docMode ? 'bg-green-500 text-white' : 'bg-green-300 text-gray-900'"
-          class="rounded p-2 font-medium hover:brightness-105 transition">
-          📄 Doküman Ekle
-        </button>
+      
 
         <!-- Bağlantı Modu -->
         <button @click="objectsStore.toggleConnectionMode()"
@@ -44,7 +44,7 @@ function toggleMenu() {
         </button>
 
         <!-- Grup Modu -->
-        <button @click="objectsStore.toogleGroupMode()"
+        <button @click="objectsStore.toggleGroupMode()"
           :class="objectsStore.groupMode ? 'bg-pink-500 text-white' : 'bg-pink-300 text-gray-900'"
           class="rounded p-2 font-medium hover:brightness-105 transition">
           🗂️ Grup

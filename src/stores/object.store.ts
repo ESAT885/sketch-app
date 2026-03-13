@@ -1,59 +1,149 @@
 import { defineStore } from "pinia";
 
-export type CanvasObject = {
+/* ================================
+BASE
+================================ */
+
+interface BaseCanvasItem {
   id: string;
-  type?: "note" | "doc" | "circle" | "group"; // farklı şekiller
   x: number;
   y: number;
   size: number;
-  color?: string;
-  titlecolor?: string;
-  title: string; // başlık içeren objeler için
-  text?: string; // metin içeren objeler için
-
-};
-export interface Connection {
-  from: string
-  to: string
-}
-export interface Group {
-  id?: string
-  x: number;
-  y: number;
-  size: number;
+  width:number;
+  height:number;
   title: string;
-  canvasObjects?: CanvasObject[]
+  color?: string;
 }
-export const useObjectsStore = defineStore("objects", {
-  state: () => ({
-    objects: [
-      { id: crypto.randomUUID().toString(), type: "note", x: 49992, y: 50000, size: 150, color: "", title: 'Alışveriş Listesi', text: 'Alışveriş listesi' },
 
-    ] as CanvasObject[],
-    connections: [] as Connection[],
-    groups: [] as Group[],
+/* ================================
+ITEM TYPES
+================================ */
+
+export interface CanvasObject extends BaseCanvasItem {
+  kind: "object";
+  type: "note" | "doc";
+  titlecolor?: string;
+  text?: string;
+}
+
+export interface Group extends BaseCanvasItem {
+  kind: "group";
+  canvasObjects?: string[]; // içindeki object id'leri
+}
+
+export interface CanvasTitle extends BaseCanvasItem {
+  kind: "title";
+}
+
+export type CanvasItem =
+  | CanvasObject
+  | Group
+  | CanvasTitle;
+
+/* ================================
+CONNECTION
+================================ */
+
+export interface Connection {
+  from: string;
+  to: string;
+}
+
+/* ================================
+STORE STATE
+================================ */
+
+interface CanvasStoreState {
+  items: CanvasItem[];
+  connections: Connection[];
+
+  connectionMode: boolean;
+  noteMode: boolean;
+  docMode: boolean;
+  groupMode: boolean;
+  canvasTitleMode: boolean;
+
+  selectedNodes: string[];
+  selectedConnection: Connection | null;
+
+  canvasX: number;
+  canvasY: number;
+  canvasScale: number;
+}
+
+/* ================================
+STORE
+================================ */
+
+export const useObjectsStore = defineStore("objects", {
+
+  state: (): CanvasStoreState => ({
+    items: [
+      {
+        id: crypto.randomUUID(),
+        kind: "object",
+        type: "note",
+        x: 49992,
+        y: 50000,
+        size: 150,
+        title: "Alışveriş Listesi",
+        text: "Alışveriş listesi",
+        width:150,
+        height:150
+      }
+    ],
+
+    connections: [],
+
     connectionMode: false,
     noteMode: false,
     docMode: false,
     groupMode: false,
-    selectedNodes: [] as string[],
-    selectedConnection: null as Connection | null,
+    canvasTitleMode: false,
+
+    selectedNodes: [],
+    selectedConnection: null,
 
     canvasX: window.innerWidth / 2 - 50000,
     canvasY: window.innerHeight / 2 - 50000,
-    canvasScale: 1,
+    canvasScale: 1
   }),
 
-  actions: {
-    loadFromStorage() {
-      const saved = localStorage.getItem("canvas_data");
+  /* ================================
+  GETTERS
+  ================================= */
 
+  getters: {
+
+    objects: (state) =>
+      state.items.filter(i => i.kind === "object") as CanvasObject[],
+
+    groups: (state) =>
+      state.items.filter(i => i.kind === "group") as Group[],
+
+    canvasTitles: (state) =>
+      state.items.filter(i => i.kind === "title") as CanvasTitle[]
+
+  },
+
+  /* ================================
+  ACTIONS
+  ================================= */
+
+  actions: {
+
+    /* Load */
+
+    loadFromStorage() {
+
+      const saved = localStorage.getItem("canvas_data");
       if (!saved) return;
 
       const data = JSON.parse(saved);
-      this.objects = data.objects || [];
-      this.connections = data.connections || [];
-      this.groups = data.groups || []
+
+      this.items = data.items ?? [];
+      this.connections = data.connections ?? [];
+
       if (data.canvas) {
 
         this.canvasX = data.canvas.x ?? this.canvasX;
@@ -61,112 +151,181 @@ export const useObjectsStore = defineStore("objects", {
         this.canvasScale = data.canvas.scale ?? this.canvasScale;
 
       }
+
     },
+
+    /* Save */
+
     saveToStorage() {
-      const data = {
-        objects: this.objects,
-        connections: this.connections,
-        canvas: {
-          x: this.canvasX,
-          y: this.canvasY,
-          scale: this.canvasScale,
-        },
-        groups: this.groups
-      };
-      localStorage.setItem("canvas_data", JSON.stringify(data));
+
+      localStorage.setItem(
+        "canvas_data",
+        JSON.stringify({
+
+          items: this.items,
+          connections: this.connections,
+
+          canvas: {
+            x: this.canvasX,
+            y: this.canvasY,
+            scale: this.canvasScale
+          }
+
+        })
+      );
 
     },
-    addObject(obj: Omit<CanvasObject, "id">) {
-      this.objects.push({ ...obj, id: crypto.randomUUID().toString() });
-      this.allmodeFalse()
+
+    /* ==========================
+       ADD
+    ========================== */
+
+    addObject(obj: Omit<CanvasObject, "id" | "kind">) {
+
+      this.items.push({
+        ...obj,
+        kind: "object",
+        id: crypto.randomUUID()
+      });
+
+      this.resetModes();
+
     },
 
-    addGroup(obj: Omit<Group, "id">) {
-      this.groups.push({ ...obj, id: crypto.randomUUID().toString() });
-      this.allmodeFalse()
-    },
-    removeObject(id: string) {
-      this.objects = this.objects.filter(o => o.id !== id);
-      console.log(id)
-      this.connections = this.connections.filter(
-        c => c.from !== id && c.to !== id
-      )
+    addGroup(group: Omit<Group, "id" | "kind">) {
+
+      this.items.push({
+        ...group,
+        kind: "group",
+        id: crypto.randomUUID()
+      });
+
+      this.resetModes();
 
     },
-    removeGroup(id: string) {
-      this.groups = this.groups.filter(t => t.id !== id)
+
+    addCanvasTitle(title: Omit<CanvasTitle, "id" | "kind">) {
+
+      this.items.push({
+        ...title,
+        kind: "title",
+        id: crypto.randomUUID()
+      });
+
+      this.resetModes();
+
     },
+
+    /* ==========================
+       REMOVE
+    ========================== */
+
+    removeItem(id: string) {
+
+      this.items = this.items.filter(i => i.id !== id);
+
+      this.connections =
+        this.connections.filter(
+          c => c.from !== id && c.to !== id
+        );
+
+    },
+
+    /* ==========================
+       CONNECTION
+    ========================== */
+
     connect(a: string, b: string) {
+
       this.connections.push({
         from: a,
         to: b
-      })
+      });
+
     },
+
     selectNode(id: string) {
 
-      if (!this.connectionMode) return
+      if (!this.connectionMode) return;
 
-      this.selectedNodes.push(id)
+      this.selectedNodes.push(id);
 
       if (this.selectedNodes.length === 2) {
 
         this.connections.push({
-          from: this.selectedNodes[0] ?? "",
-          to: this.selectedNodes[1] ?? ""
-        })
+          from: this.selectedNodes[0]??'',
+          to: this.selectedNodes[1]??''
+        });
 
-        this.selectedNodes = []
-        this.allmodeFalse()
+        this.selectedNodes = [];
+        this.resetModes();
 
       }
 
     },
+
+    /* ==========================
+       MODES
+    ========================== */
+
     toggleConnectionMode() {
-      this.connectionMode = !this.connectionMode
-      this.selectedNodes = []
-    },
 
-    toogleNoteMode() {
-      this.allmodeFalse()
-      this.noteMode = !this.noteMode
+      this.connectionMode = !this.connectionMode;
+      this.selectedNodes = [];
 
     },
-    toogleDocMode() {
-      this.allmodeFalse()
-      this.docMode = !this.docMode
+
+    toggleNoteMode() {
+
+      this.resetModes();
+      this.noteMode = true;
 
     },
-    toogleGroupMode() {
-      this.allmodeFalse()
-      this.groupMode = !this.groupMode
+
+    toggleDocMode() {
+
+      this.resetModes();
+      this.docMode = true;
 
     },
-    allmodeFalse() {
-      this.connectionMode = false
-      this.noteMode = false
-      this.docMode = false
-      this.groupMode = false
+
+    toggleGroupMode() {
+
+      this.resetModes();
+      this.groupMode = true;
+
     },
+
+    toggleCanvasTitle() {
+
+      this.resetModes();
+      this.canvasTitleMode = true;
+
+    },
+
+    resetModes() {
+
+      this.connectionMode = false;
+      this.noteMode = false;
+      this.docMode = false;
+      this.groupMode = false;
+      this.canvasTitleMode = false;
+
+    },
+
+    /* ==========================
+       CURRENT TYPE
+    ========================== */
+
     getCurrentType(): CanvasObject["type"] {
-      console.log(this.noteMode)
-      console.log(this.docMode)
-      console.log(this.groupMode)
 
-      switch (true) {
+      if (this.noteMode) return "note";
+      if (this.docMode) return "doc";
 
-        case this.noteMode:
-          return "note"
-
-        case this.docMode:
-          return "doc"
-
-        case this.groupMode:
-          return "group"
-
-        default:
-          return "circle"
-      }
+      return "note";
 
     }
-  },
+
+  }
+
 });

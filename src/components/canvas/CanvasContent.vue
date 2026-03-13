@@ -3,16 +3,17 @@
 import { useObjectsStore, type Connection } from "@/stores/object.store";
 import NoteItem from "@/components/canvas/contentItems/NoteItem.vue"
 import GroupItem from "@/components/canvas/contentItems/GroupItem.vue"
+import TitleItem from "@/components/canvas/contentItems/TitleItem.vue"
 const objectsStore = useObjectsStore();
 function getCenter(id: string) {
 
-  const obj = objectsStore.objects.find(o => o.id === id)
+  const obj = objectsStore.items.find(o => o.id === id)
 
   if (!obj) return { x: 0, y: 0 }
 
   return {
-    x: obj.x + obj.size / 2,
-    y: obj.y + obj.size / 2
+    x: obj.x + obj.width / 2,
+    y: obj.y +obj.height / 2
   }
 
 }
@@ -48,12 +49,12 @@ function selectedNode(c: Connection) {
 
 <template>
 
-  <div v-for="group in objectsStore.groups" :key="group.id" :style="{
+  <div @click="objectsStore.selectNode(group.id ?? '')" v-for="group in objectsStore.groups" :key="group.id" :style="{
     position: 'absolute',
     left: group.x + 'px',
     top: group.y + 'px',
-    width: group.size + 'px',
-    height: group.size + 'px'
+      width: group.width + 'px',
+      height: group.height + 'px',
   }" class="0 bg-blue-100/50 border-2  rounded-lg">
     <GroupItem :group="group"></GroupItem>
 
@@ -65,12 +66,24 @@ function selectedNode(c: Connection) {
       :stroke="objectsStore.selectedConnection == c ? '#f87171' : '#facc15'" />
 
   </svg>
-  <div @click="objectsStore.selectNode(obj.id)" v-for="obj in objectsStore.objects" :key="obj.id" :style="{
+  <div v-for="canvaTitle in objectsStore.canvasTitles" @click="objectsStore.selectNode(canvaTitle.id ?? '')"
+    :key="canvaTitle.id" :style="{
+      position: 'absolute',
+      left: canvaTitle.x + 'px',
+      top: canvaTitle.y + 'px',
+      width: canvaTitle.width + 'px',
+      height: canvaTitle.height + 'px',
+
+    }" class=" bg-blue-100/50 border-2  rounded-lg">
+    <TitleItem :obj="canvaTitle"></TitleItem>
+
+  </div>
+  <div @click="objectsStore.selectNode(obj.id ?? '')" v-for="obj in objectsStore.objects" :key="obj.id" :style="{
     position: 'absolute',
     left: obj.x + 'px',
     top: obj.y + 'px',
-    width: obj.size + 'px',
-    height: obj.size + 'px',
+    width: obj.width + 'px',
+    height: obj.height + 'px',
     background: obj.color || '#fffa77',
     display: 'flex',
     flexDirection: 'column',
