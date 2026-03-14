@@ -107,7 +107,7 @@ function startEditTitle(obj: CheckList) {
   });
 }
 function saveTitle(obj: CheckList) {
-  const item = objectsStore.objects.find(o => o.id === obj.id);
+  const item = objectsStore.checkLists.find(o => o.id === obj.id);
   if (item) item.title = newTitle.value;
   editingTitleId.value = null;
 }
@@ -169,7 +169,7 @@ function saveTitle(obj: CheckList) {
     </div>
 
     <button @mousedown.stop @click="addItem"
-    class="w-full btn px-2 bg-yellow-400 rounded-t absolute bottom-0 text-black font-bold">Ekle</button>
+    class="w-full btn px-2 p-2 bg-yellow-400 rounded-t absolute bottom-0 text-black font-bold">Ekle</button>
     <div @mousedown="(e) => startResize(e, obj.id ?? '', obj.height, obj.width)" class="absolute bottom-0 right-0 w-3 h-3 bg-white border border-gray-600 cursor-se-resize
            translate-x-1/2 translate-y-1/2" style="touch-action: none;"></div>
   </div>
