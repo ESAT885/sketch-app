@@ -95,4 +95,4 @@ npm run dev
 Production build almak için:
 
 ```bash
-npm run bu
+npm run build
