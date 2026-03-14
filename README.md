@@ -10,9 +10,8 @@ https://esat885.github.io/sketch-app/
 
 ## 🖼 Uygulamadan Görseller
 
-![App Screenshot]()
+![App Screenshot](/images/mainPage.png)
 
-![App Screenshot]()
 
 ---
 
