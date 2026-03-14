@@ -8,6 +8,27 @@ const menuOpen = ref(false);
 function toggleMenu() {
   menuOpen.value = !menuOpen.value;
 }
+const baseBtn =
+  "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-[1.02]";
+
+const activeIndigo =
+  "bg-indigo-500 text-white shadow-md shadow-indigo-500/30";
+
+const inactiveIndigo =
+  "bg-indigo-300 text-gray-900 hover:bg-indigo-400";
+
+const activeCyan =
+  "bg-cyan-500 text-white shadow-md shadow-cyan-500/30";
+
+const inactiveCyan =
+  "bg-cyan-300 text-gray-900 hover:bg-cyan-400";
+
+const activePink =
+  "bg-pink-500 text-white shadow-md shadow-pink-500/30";
+
+const inactivePink =
+  "bg-pink-300 text-gray-900 hover:bg-pink-400";
+
 </script>
 
 <template>
@@ -20,45 +41,80 @@ function toggleMenu() {
 
     <!-- Açılır Menü -->
     <transition name="fade-slide">
-      <div v-if="menuOpen"
-        class="absolute top-16 left-4 bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col gap-2 z-50 w-48">
-        <button @click="objectsStore.toggleCanvasTitle()"
-          :class="objectsStore.canvasTitleMode ? 'bg-indigo-500 text-white' : 'bg-indigo-300 text-gray-900'"
-          class="rounded p-2 font-medium hover:brightness-105 transition">
-          📦 Başlık Ekle
-        </button>
-        <!-- Not Ekle -->
-        <button @click="objectsStore.toggleNoteMode()"
-          :class="objectsStore.noteMode ? 'bg-indigo-500 text-white' : 'bg-indigo-300 text-gray-900'"
-          class="rounded p-2 font-medium hover:brightness-105 transition">
-          📦 Not Ekle
-        </button>
-        <!-- Not Ekle -->
-        <button @click="objectsStore.toggleCheckList()"
-          :class="objectsStore.checkListMode ? 'bg-indigo-500 text-white' : 'bg-indigo-300 text-gray-900'"
-          class="rounded p-2 font-medium hover:brightness-105 transition">
-          📦 Liste Ekle
-        </button>
+  <div
+    v-if="menuOpen"
+    class="absolute top-16 left-4
+    w-52 p-3
+    bg-gray-900/90 backdrop-blur-xl
+    border border-gray-700
+    rounded-xl shadow-2xl
+    flex flex-col gap-2
+    z-50">
 
+    <!-- Başlık -->
+    <div class="text-xs text-gray-400 px-2 mb-1 tracking-wide">
+      CANVAS ARAÇLARI
+    </div>
 
-        <!-- Bağlantı Modu -->
-        <button @click="objectsStore.toggleConnectionMode()"
-          :class="objectsStore.connectionMode ? 'bg-cyan-500 text-white' : 'bg-cyan-300 text-gray-900'"
-          class="rounded p-2 font-medium hover:brightness-105 transition">
-          🔗 Bağlantı
-        </button>
+    <!-- Başlık -->
+    <button
+      @click="objectsStore.toggleCanvasTitle()"
+      :class="[
+        baseBtn,
+        objectsStore.canvasTitleMode ? activeIndigo : inactiveIndigo
+      ]">
+      🧾 Başlık
+    </button>
 
-        <!-- Grup Modu -->
-        <button @click="objectsStore.toggleGroupMode()"
-          :class="objectsStore.groupMode ? 'bg-pink-500 text-white' : 'bg-pink-300 text-gray-900'"
-          class="rounded p-2 font-medium hover:brightness-105 transition">
-          🗂️ Grup
-        </button>
+    <!-- Not -->
+    <button
+      @click="objectsStore.toggleNoteMode()"
+      :class="[
+        baseBtn,
+        objectsStore.noteMode ? activeIndigo : inactiveIndigo
+      ]">
+      📝 Not
+    </button>
 
-        <!-- Versiyon -->
-        <p class="text-sm text-gray-400 mt-2">Version: 1.0.0</p>
-      </div>
-    </transition>
+    <!-- Liste -->
+    <button
+      @click="objectsStore.toggleCheckList()"
+      :class="[
+        baseBtn,
+        objectsStore.checkListMode ? activeIndigo : inactiveIndigo
+      ]">
+      ☑️ Liste
+    </button>
+
+    <div class="border-t border-gray-700 my-1"></div>
+
+    <!-- Bağlantı -->
+    <button
+      @click="objectsStore.toggleConnectionMode()"
+      :class="[
+        baseBtn,
+        objectsStore.connectionMode ? activeCyan : inactiveCyan
+      ]">
+      🔗 Bağlantı
+    </button>
+
+    <!-- Grup -->
+    <button
+      @click="objectsStore.toggleGroupMode()"
+      :class="[
+        baseBtn,
+        objectsStore.groupMode ? activePink : inactivePink
+      ]">
+      🗂️ Grup
+    </button>
+
+    <!-- Version -->
+    <div class="text-[11px] text-gray-500 mt-2 text-center">
+      Canvas v1.0.0
+    </div>
+
+  </div>
+</transition>
 
     <!-- Canvas -->
     <main class="flex-1 relative overflow-hidden">

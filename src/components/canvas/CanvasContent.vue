@@ -4,7 +4,7 @@ import { useObjectsStore, type Connection } from "@/stores/object.store";
 import NoteItem from "@/components/canvas/contentItems/NoteItem.vue"
 import GroupItem from "@/components/canvas/contentItems/GroupItem.vue"
 import TitleItem from "@/components/canvas/contentItems/TitleItem.vue"
-import CheckList from "@/components/canvas/contentItems/Checklist.vue"
+import CheckList from "@/components/canvas/contentItems/CheckList.vue"
 const objectsStore = useObjectsStore();
 function getCenter(id: string) {
 
@@ -124,14 +124,14 @@ function selectedNode(c: Connection) {
     </template>
 
   </div>
-<div v-for="checkList in objectsStore.checkLists" @click="objectsStore.selectNode(checkList.id ?? '')"
+  <div v-for="checkList in objectsStore.checkLists" @click="objectsStore.selectNode(checkList.id ?? '')"
     :key="checkList.id" :style="{
       position: 'absolute',
       left: checkList.x + 'px',
       top: checkList.y + 'px',
       width: checkList.width + 'px',
       height: checkList.height + 'px',
-  background: checkList.color || '#fffa77',
+      background: checkList.color || '#fffa77',
     }" class=" bg-blue-100/50 border-2  rounded-lg">
     <CheckList :obj="checkList"></CheckList>
 
