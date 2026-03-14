@@ -1,48 +1,99 @@
-# sketch-app
+# 🎨 Sketch App
 
-This template should help get you started developing with Vue 3 in Vite.
+Sketch App, **Vue 3 ve Vite** kullanılarak geliştirilmiş bir **canvas / whiteboard uygulamasıdır**.  
+Notlar ekleyebilir, checklist oluşturabilir, bağlantılar kurabilir ve fikirlerinizi görsel olarak organize edebilirsiniz.
 
-## Recommended IDE Setup
+🌐 **Canlı Site:**  
+https://esat885.github.io/sketch-app/
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+---
 
-## Recommended Browser Setup
+## 🖼 Uygulamadan Görseller
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+![App Screenshot]()
 
-## Type Support for `.vue` Imports in TS
+![App Screenshot]()
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+---
 
-## Customize configuration
+# 🚀 Proje Hakkında
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+Bu proje **Vue 3 + Vite** kullanılarak geliştirilmiştir ve bir **dijital sketch / whiteboard aracı** olarak çalışır.
 
-## Project Setup
+## Özellikler
 
-```sh
+- 📝 Not ekleme
+- ☑️ Checklist oluşturma
+- 🔗 Objeler arasında bağlantı kurma
+- 🗂️ Gruplama
+- 🎨 Canvas üzerinde sürükle & bırak
+- 💾 LocalStorage ile verileri kaydetme
+
+Bu proje **Miro / FigJam tarzı bir canvas uygulaması** geliştirme amacıyla oluşturulmuştur.
+
+---
+
+# 🛠 Önerilen IDE
+
+En iyi geliştirme deneyimi için:
+
+- **VS Code**
+- **Vue - Volar Extension**
+
+Vetur kullanıyorsanız devre dışı bırakmanız önerilir.
+
+---
+
+# 🌐 Önerilen Tarayıcı Kurulumu
+
+### Chromium tabanlı tarayıcılar
+(Chrome, Edge, Brave vb.)
+
+- Vue DevTools
+- Chrome DevTools Custom Object Formatter
+
+### Firefox
+
+- Vue DevTools
+- Firefox DevTools Custom Object Formatter
+
+---
+
+# 📦 Proje Kurulumu
+
+Projeyi bilgisayarınıza klonlayın:
+
+```bash
+git clone https://github.com/esat885/sketch-app.git
+```
+
+Proje klasörüne girin:
+
+```bash
+cd sketch-app
+```
+
+Bağımlılıkları yükleyin:
+
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+---
 
-```sh
+# 💻 Development (Geliştirme)
+
+Geliştirme sunucusunu başlatmak için:
+
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+---
 
-```sh
-npm run build
-```
+# 🏗 Production Build
 
-### Lint with [ESLint](https://eslint.org/)
+Production build almak için:
 
-```sh
-npm run lint
-```
+```bash
+npm run bu
