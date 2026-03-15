@@ -30,7 +30,7 @@ const emit = defineEmits<{
 }>();
 
 // Varsayılan seçenekler
-const options = props.options || ['Seçenek 1', 'Seçenek 2', 'Seçenek 3'];
+const options = props.options || [];
 
 function select(option: string) {
   alert("asdasd")

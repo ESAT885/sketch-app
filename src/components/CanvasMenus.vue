@@ -41,9 +41,7 @@ const inactivePink =
 
     <!-- Açılır Menü -->
     <transition name="fade-slide">
-  <div
-    v-if="menuOpen"
-    class="absolute top-16 left-4
+      <div v-if="menuOpen" class="absolute top-16 left-4
     w-52 p-3
     bg-gray-900/90 backdrop-blur-xl
     border border-gray-700
@@ -51,71 +49,61 @@ const inactivePink =
     flex flex-col gap-2
     z-50">
 
-    <!-- Başlık -->
-    <div class="text-xs text-gray-400 px-2 mb-1 tracking-wide">
-      CANVAS ARAÇLARI
-    </div>
+        <!-- Başlık -->
+        <div class="text-xs text-gray-400 px-2 mb-1 tracking-wide">
+          CANVAS ARAÇLARI
+        </div>
 
-    <!-- Başlık -->
-    <button
-      @click="objectsStore.toggleCanvasTitle()"
-      :class="[
-        baseBtn,
-        objectsStore.canvasTitleMode ? activeIndigo : inactiveIndigo
-      ]">
-      🧾 Başlık
-    </button>
+        <!-- Başlık -->
+        <button @click="objectsStore.toggleCanvasTitle()" :class="[
+          baseBtn,
+          objectsStore.canvasTitleMode ? activeIndigo : inactiveIndigo
+        ]">
+          🧾 Başlık
+        </button>
 
-    <!-- Not -->
-    <button
-      @click="objectsStore.toggleNoteMode()"
-      :class="[
-        baseBtn,
-        objectsStore.noteMode ? activeIndigo : inactiveIndigo
-      ]">
-      📝 Not
-    </button>
+        <!-- Not -->
+        <button @click="objectsStore.toggleNoteMode()" :class="[
+          baseBtn,
+          objectsStore.noteMode ? activeIndigo : inactiveIndigo
+        ]">
+          📝 Not
+        </button>
 
-    <!-- Liste -->
-    <button
-      @click="objectsStore.toggleCheckList()"
-      :class="[
-        baseBtn,
-        objectsStore.checkListMode ? activeIndigo : inactiveIndigo
-      ]">
-      ☑️ Liste
-    </button>
+        <!-- Liste -->
+        <button @click="objectsStore.toggleCheckList()" :class="[
+          baseBtn,
+          objectsStore.checkListMode ? activeIndigo : inactiveIndigo
+        ]">
+          ☑️ Liste
+        </button>
 
-    <div class="border-t border-gray-700 my-1"></div>
+        <div class="border-t border-gray-700 my-1"></div>
 
-    <!-- Bağlantı -->
-    <button
-      @click="objectsStore.toggleConnectionMode()"
-      :class="[
-        baseBtn,
-        objectsStore.connectionMode ? activeCyan : inactiveCyan
-      ]">
-      🔗 Bağlantı
-    </button>
+        <!-- Bağlantı -->
+        <button @click="objectsStore.toggleConnectionMode()" :class="[
+          baseBtn,
+          objectsStore.connectionMode ? activeCyan : inactiveCyan
+        ]">
+          🔗 Bağlantı
+        </button>
 
-    <!-- Grup -->
-    <button
-      @click="objectsStore.toggleGroupMode()"
-      :class="[
-        baseBtn,
-        objectsStore.groupMode ? activePink : inactivePink
-      ]">
-      🗂️ Grup
-    </button>
+        <!-- Grup -->
+        <button @click="objectsStore.toggleGroupMode()" :class="[
+          baseBtn,
+          objectsStore.groupMode ? activePink : inactivePink
+        ]">
+          🗂️ Grup
+        </button>
 
-    <!-- Version -->
-    <div class="text-[11px] text-gray-500 mt-2 text-center">
-      Canvas v1.0.0
-    </div>
+        <!-- Version -->
+        <div class="text-[11px] text-gray-500 mt-2 text-center">
+          Canvas v1.0.0
+        </div>
 
-  </div>
-</transition>
-
+      </div>
+    </transition>
+ 
     <!-- Canvas -->
     <main class="flex-1 relative overflow-hidden">
       <slot />

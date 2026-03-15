@@ -158,8 +158,13 @@ document.addEventListener('click', () => {
 </script>
 
 <template>
-  <div class="viewport" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseUp" @mouseleave="mouseUp"
-    @wheel.prevent="wheel" @click="canvasClick">
+  <div class="viewport"
+   @mousedown="mouseDown"
+    @mousemove="mouseMove"
+     @mouseup="mouseUp"
+     @mouseleave="mouseUp"
+    @wheel.prevent="wheel"
+     @click="canvasClick">
     <div class="grid" :style="gridStyle"></div>
     <div class="canvas" :style="canvasStyle" @contextmenu.prevent="openMenu($event)">
       <slot />
@@ -195,5 +200,8 @@ document.addEventListener('click', () => {
   position: absolute;
   width: 100000px;
   height: 100000px;
+}
+.viewport {
+  touch-action: none;
 }
 </style>
