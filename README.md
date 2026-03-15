@@ -10,9 +10,8 @@ https://esat885.github.io/sketch-app/
 
 ## 🖼 Uygulamadan Görseller
 
-![App Screenshot]()
+![App Screenshot](/images/mainPage.png)
 
-![App Screenshot]()
 
 ---
 
@@ -96,4 +95,4 @@ npm run dev
 Production build almak için:
 
 ```bash
-npm run bu
+npm run build
